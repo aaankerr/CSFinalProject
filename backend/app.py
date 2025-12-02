@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pymysql
 
+<<<<<<< HEAD
 #Create a change
 
 # -------- DB helpers (no classes, just functions) --------
@@ -17,6 +18,19 @@ def get_conn():
     # return pymysql.connect(host=..., user=..., password=..., database=...,
     #                        cursorclass=pymysql.cursors.DictCursor, autocommit=True)
     return None  # placeholder
+=======
+
+# -------- DB helpers (no classes, just functions) -------- 
+def get_conn():
+    return pymysql.connect(
+        host = os.getenv("MYSQL_HOST", "db")
+        user = os.getenv("MYSQL_USER", "user")
+        password = os.getenv("MYSQL_PASSWORD", "pass")
+        database = os.getenv("MYSQL_DATABASE", "groceries")
+        cursorclass = DictCursor
+        autocommit = True
+    )
+>>>>>>> de8a1c9 (Connection to mysql)
 
 
 def get_or_create_dept_id(dept_name):
