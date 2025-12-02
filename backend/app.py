@@ -3,21 +3,6 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pymysql
 
-<<<<<<< HEAD
-#Create a change
-
-# -------- DB helpers (no classes, just functions) --------
-def get_conn():
-    return pymysql.connect(
-        host = os.getenv("MYSQL_HOST", "db")
-        user = os.getenv("MYSQL_USER", "user")
-        password = os.getenv("MYSQL_PASSWORD", "pass")
-        database = os.getenv("MYSQL_DATABASE", "groceries")
-        cursorclass = DictCursor
-        autocommit = True
-    )
-
-
 # -------- DB helpers (no classes, just functions) -------- 
 def get_conn():
     return pymysql.connect(
@@ -25,36 +10,32 @@ def get_conn():
         user = os.getenv("MYSQL_USER", "user")
         password = os.getenv("MYSQL_PASSWORD", "pass")
         database = os.getenv("MYSQL_DATABASE", "groceries")
-        cursorclass = DictCursor
+        cursorclass=pymysql.cursors.DictCursor
         autocommit = True
     )
 
 def get_or_create_dept_id(dept_name):
-    """
-    TODO (student):
-      - Try to SELECT id FROM dept WHERE name=%s LIMIT 1
-      - If exists, return that id
-      - Else INSERT INTO dept(name) VALUES(%s) and return lastrowid
-    """
-    # Pseudocode only:
-    # conn = get_conn()
-    # with conn.cursor() as cur:
-    #   cur.execute("SELECT id FROM dept WHERE name=%s LIMIT 1", (dept_name,))
-    #   row = cur.fetchone()
-    #   if row: return row["id"]
-    #   cur.execute("INSERT INTO dept (name) VALUES (%s)", (dept_name,))
-    #   return cur.lastrowid
-    return None  # placeholder
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM dept WHERE name=%s LIMIT 1", (dept_name,))
+        row = cur.fetchone()
+        if row:
+            return row["id"]
+        cur.execute("INSERT INTO dept (name) VALUES (%s)", (dept_name,))
+        return cur.lastrowid
 
 
 def get_or_create_origin_id(origin_code):
-    """
-    TODO (student):
-      - Default origin_code to 'MX' if missing
-      - SELECT id FROM origin WHERE code=%s LIMIT 1
-      - If exists, return it; otherwise INSERT and return lastrowid
-    """
-    return None  # placeholder
+    if not origin_code:
+            origin_code = "MX"
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM origin WHERE code=%s LIMIT 1", (origin_code,))
+        row = cur.fetchone()
+        if row:
+            return row["id"]
+        cur.execute("INSERT INTO origin (code) VALUES (%s)", (origin_code,))
+        return cur.lastrowid
 
 
 def fetch_all_products():
