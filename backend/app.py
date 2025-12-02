@@ -8,17 +8,15 @@ import pymysql
 
 # -------- DB helpers (no classes, just functions) --------
 def get_conn():
-    """
-    TODO (student):
-      - Create and return a MySQL connection using environment variables:
-        MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
-      - Use pymysql.connect(...) with DictCursor and autocommit=True
-    """
-    # Example (do NOT implement here in the starter):
-    # return pymysql.connect(host=..., user=..., password=..., database=...,
-    #                        cursorclass=pymysql.cursors.DictCursor, autocommit=True)
-    return None  # placeholder
-=======
+    return pymysql.connect(
+        host = os.getenv("MYSQL_HOST", "db")
+        user = os.getenv("MYSQL_USER", "user")
+        password = os.getenv("MYSQL_PASSWORD", "pass")
+        database = os.getenv("MYSQL_DATABASE", "groceries")
+        cursorclass = DictCursor
+        autocommit = True
+    )
+
 
 # -------- DB helpers (no classes, just functions) -------- 
 def get_conn():
