@@ -26,13 +26,17 @@ def get_or_create_dept_id(dept_name):
 
 
 def get_or_create_origin_id(origin_code):
-    """
-    TODO (student):
-      - Default origin_code to 'MX' if missing
-      - SELECT id FROM origin WHERE code=%s LIMIT 1
-      - If exists, return it; otherwise INSERT and return lastrowid
-    """
-    return None  # placeholder
+    if not origin_code:
+            origin_code = "MX"
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM origin WHERE code=%s LIMIT 1", (origin_code,))
+        row = cur.fetchone()
+        if row:
+            return row["id"]
+        cur.execute("INSERT INTO origin (code) VALUES (%s)", (origin_code,))
+        return cur.lastrowid
+
 
 
 def fetch_all_products():
