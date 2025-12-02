@@ -30,8 +30,12 @@ def get_conn():
         cursorclass = DictCursor
         autocommit = True
     )
+<<<<<<< HEAD
 >>>>>>> de8a1c9 (Connection to mysql)
 
+=======
+    
+>>>>>>> 5bfa88a (get_conn)
 
 def get_or_create_dept_id(dept_name):
     """
