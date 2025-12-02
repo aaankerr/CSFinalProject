@@ -38,7 +38,6 @@ def get_or_create_origin_id(origin_code):
         return cur.lastrowid
 
 
-
 def fetch_all_products():
     """
     TODO (student):
