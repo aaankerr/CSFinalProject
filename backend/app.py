@@ -6,11 +6,11 @@ import pymysql
 # -------- DB helpers (no classes, just functions) -------- 
 def get_conn():
     return pymysql.connect(
-        host = os.getenv("MYSQL_HOST", "db")
-        user = os.getenv("MYSQL_USER", "user")
-        password = os.getenv("MYSQL_PASSWORD", "pass")
-        database = os.getenv("MYSQL_DATABASE", "groceries")
-        cursorclass=pymysql.cursors.DictCursor
+        host = os.getenv("MYSQL_HOST", "db"),
+        user = os.getenv("MYSQL_USER", "user"),
+        password = os.getenv("MYSQL_PASSWORD", "pass"),
+        database = os.getenv("MYSQL_DATABASE", "groceries"),
+        cursorclass=pymysql.cursors.DictCursor,
         autocommit = True
     )
 
@@ -102,7 +102,7 @@ def update_product(product_id, name, department, origin, price, stock):
         """, (name, dept_id, origin_id, price, stock, product_id)
         )
     return cur.rowcount
-    
+
 
 def delete_product(product_id):
     """
