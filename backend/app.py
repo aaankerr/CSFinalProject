@@ -90,14 +90,19 @@ def insert_product(name, department, origin, price, stock):
 
 
 def update_product(product_id, name, department, origin, price, stock):
-    """
-    TODO (student):
-      - Resolve dept_id/origin_id
-      - UPDATE products SET ... WHERE id=%s
-      - Return affected rows count
-    """
-    return 0  # placeholder
+    dept_id = get_or_create_dept_id(department)
+    origin_id = get_or_create_origin_id(origin)
 
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("""
+            UPDATE products
+            SET name = %s, dept_id = %s, origin_id = %s, price = %s, stock = %s
+            WHERE id=%s
+        """, (name, dept_id, origin_id, price, stock, product_id)
+        )
+    return cur.rowcount
+    
 
 def delete_product(product_id):
     """
