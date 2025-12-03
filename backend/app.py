@@ -78,7 +78,6 @@ def fetch_product(product_id):
 def insert_product(name, department, origin, price, stock):
     dept_id = get_or_create_dept_id(department)
     origin_id = get_or_create_origin_id(origin)
-
     conn = get_conn()
     with conn.cursor() as cur:
         cur.execute("""
@@ -92,7 +91,6 @@ def insert_product(name, department, origin, price, stock):
 def update_product(product_id, name, department, origin, price, stock):
     dept_id = get_or_create_dept_id(department)
     origin_id = get_or_create_origin_id(origin)
-
     conn = get_conn()
     with conn.cursor() as cur:
         cur.execute("""
