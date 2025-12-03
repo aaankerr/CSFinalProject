@@ -57,22 +57,36 @@ def fetch_all_products():
 
 
 def fetch_product(product_id):
-    """
-    TODO (student):
-      - Return a single product by id with the same join as above
-      - If not found, return None
-    """
-    return None  # placeholder
+    conn = get_conn()
+    with conn.cursor() as cur:
+        query = """ 
+        SELECT p.id, p.name,
+            d.name AS department,
+            o.code AS origin,
+            p.price,
+            p.stock 
+        FROM products p
+        JOIN dept d ON p.dept_id = d.id
+        JOIN origin o ON p.origin_id = o.id
+        WHERE p.id = %s
+        LIMIT 1;
+        """
+        cur.execute(query, (product_id))
+        return cur.fetchone()
 
 
 def insert_product(name, department, origin, price, stock):
-    """
-    TODO (student):
-      - Use get_or_create_dept_id and get_or_create_origin_id to get foreign keys
-      - INSERT INTO products (name, dept_id, origin_id, price, stock) VALUES (...)
-      - Return new product id (lastrowid)
-    """
-    return None  # placeholder
+    dept_id = get_or_create_dept_id(department)
+    origin_id = get_or_create_origin_id(origin)
+
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT into products (name, dept_id, origin_id, price, stock)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (name, dept_id, origin_id, price, stock)
+        )
+    return cur.lastrowid
 
 
 def update_product(product_id, name, department, origin, price, stock):
