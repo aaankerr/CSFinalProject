@@ -25,7 +25,7 @@ def get_or_create_dept_id(dept_name):
         return cur.lastrowid
 
 
-def get_or_create_origin_id(origin_code):
+def get_or_create_origin_id(origin_code = None):
     if not origin_code:
             origin_code = "MX"
     conn = get_conn()
@@ -39,18 +39,21 @@ def get_or_create_origin_id(origin_code):
 
 
 def fetch_all_products():
-    """
-    TODO (student):
-      - Return a list of products joining dept and origin so the frontend sees:
-        id, name, department (dept.name), origin (origin.code), price, stock
-      - SQL idea:
-        SELECT p.id, p.name, d.name AS department, o.code AS origin, p.price, p.stock
-        FROM products p
+    conn = get_conn()
+    with conn.cursor() as cur:
+        query = """ 
+        SELECT p.id, p.name,
+            d.name AS department,
+            o.code AS origin,
+            p.price,
+            p.stock 
+        FROM products
         JOIN dept d ON p.dept_id = d.id
         JOIN origin o ON p.origin_id = o.id
         ORDER BY p.id;
-    """
-    return []  # placeholder
+        """
+    cur.execute(query)
+    return cur.fetchall()
 
 
 def fetch_product(product_id):
