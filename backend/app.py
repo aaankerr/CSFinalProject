@@ -103,12 +103,13 @@ def update_product(product_id, name, department, origin, price, stock):
 
 
 def delete_product(product_id):
-    """
-    TODO (student):
-      - DELETE FROM products WHERE id=%s
-      - Return affected rows count
-    """
-    return 0  # placeholder
+    conn = get_conn()
+    with conn.cursor() as cur
+        cur.execute("""
+        DELETE FROM products WHERE id=%s
+        """, (product_id)
+        )
+    return cur.rowcount
 
 
 # --- Helpers to list departments and origins ---
