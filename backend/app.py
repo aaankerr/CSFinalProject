@@ -85,7 +85,7 @@ def insert_product(name, department, origin, price, stock):
             VALUES (%s, %s, %s, %s, %s)
         """, (name, dept_id, origin_id, price, stock)
         )
-    return cur.lastrowid
+        return cur.lastrowid
 
 
 def update_product(product_id, name, department, origin, price, stock):
@@ -99,7 +99,7 @@ def update_product(product_id, name, department, origin, price, stock):
             WHERE id=%s
         """, (name, dept_id, origin_id, price, stock, product_id)
         )
-    return cur.rowcount
+        return cur.rowcount
 
 
 def delete_product(product_id):
@@ -109,26 +109,22 @@ def delete_product(product_id):
         DELETE FROM products WHERE id=%s
         """, (product_id)
         )
-    return cur.rowcount
+        return cur.rowcount
 
 
 # --- Helpers to list departments and origins ---
 def fetch_departments():
-    """
-    TODO (student):
-      - SELECT id, name FROM dept ORDER BY name;
-      - Return list of dicts
-    """
-    return []  # placeholder
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, name FROM dept ORDER BY name")
+        return cur.fetchall()
 
 
 def fetch_origins():
-    """
-    TODO (student):
-      - SELECT id, code FROM origin ORDER BY code;
-      - Return list of dicts
-    """
-    return []  # placeholder
+    conn = get_conn()
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, code FROM origin ORDER BY code")
+            return cur.fetchall()
 
 
 # -------- Flask app --------
