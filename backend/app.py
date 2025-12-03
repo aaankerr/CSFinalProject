@@ -57,12 +57,22 @@ def fetch_all_products():
 
 
 def fetch_product(product_id):
-    """
-    TODO (student):
-      - Return a single product by id with the same join as above
-      - If not found, return None
-    """
-    return None  # placeholder
+    conn = get_conn()
+    with conn.cursor() as cur:
+        query = """ 
+        SELECT p.id, p.name,
+            d.name AS department,
+            o.code AS origin,
+            p.price,
+            p.stock 
+        FROM products p
+        JOIN dept d ON p.dept_id = d.id
+        JOIN origin o ON p.origin_id = o.id
+        WHERE p.id = %s
+        LIMIT 1;
+        """
+        cur.execute(query, (product_id))
+        return cur.fetchone()
 
 
 def insert_product(name, department, origin, price, stock):
