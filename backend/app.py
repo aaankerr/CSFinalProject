@@ -76,13 +76,17 @@ def fetch_product(product_id):
 
 
 def insert_product(name, department, origin, price, stock):
-    """
-    TODO (student):
-      - Use get_or_create_dept_id and get_or_create_origin_id to get foreign keys
-      - INSERT INTO products (name, dept_id, origin_id, price, stock) VALUES (...)
-      - Return new product id (lastrowid)
-    """
-    return None  # placeholder
+    dept_id = get_or_create_dept_id(department)
+    origin_id = get_or_create_origin_id(origin)
+
+    conn = get_conn()
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT into products (name, dept_id, origin_id, price, stock)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (name, dept_id, origin_id, price, stock)
+        )
+    return cur.lastrowid
 
 
 def update_product(product_id, name, department, origin, price, stock):
