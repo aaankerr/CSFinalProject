@@ -1,35 +1,46 @@
--- TODO (student):
--- This file should create a simple relational schema for a grocery inventory.
--- Suggested steps (write the real SQL yourself):
+CREATE DATABASE IF NOT EXISTS groceries;
+USE groceries;
 
--- 1) Create database and (optionally) a user:
---    CREATE DATABASE groceries;
---    CREATE USER 'user'@'%' IDENTIFIED BY 'pass';
---    GRANT ALL PRIVILEGES ON groceries.* TO 'user'@'%';
---    USE groceries;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS dept;
+DROP TABLE IF EXISTS origin;
 
--- 2) Create reference tables:
---    Table dept:
---      id INT AUTO_INCREMENT PRIMARY KEY
---      name VARCHAR(50) NOT NULL
---
---    Table origin:
---      id INT AUTO_INCREMENT PRIMARY KEY
---      code VARCHAR(3) NOT NULL
---
--- 3) Create products table that references dept and origin:
---      id INT AUTO_INCREMENT PRIMARY KEY
---      name VARCHAR(100) NOT NULL
---      dept_id INT NOT NULL
---      origin_id INT NOT NULL
---      price DECIMAL(10,2) NOT NULL
---      stock INT NOT NULL
---      FOREIGN KEY (dept_id) REFERENCES dept(id)
---      FOREIGN KEY (origin_id) REFERENCES origin(id)
+CREATE TABLE IF NOT EXISTS dept (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
 
--- 4) (Optional) Insert some seed rows:
---    INSERT INTO dept (name) VALUES ('Dairy'), ('Produce'), ... ;
---    INSERT INTO origin (code) VALUES ('MX'), ('USA'), ... ;
---    INSERT INTO products (name, dept_id, origin_id, price, stock) VALUES (...);
+CREATE TABLE IF NOT EXISTS origin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(3) NOT NULL
+);
 
--- Keep it simple. Avoid complex constraints or validations.
+INSERT INTO dept (name) VALUES
+('Beverages'),
+('Bread/Bakery'),
+('Canned/Jarred Goods'),
+('Dairy');
+
+INSERT INTO origin (name) VALUES
+('USA'),
+('ARG'),
+('MXN'),
+('CAN');
+
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    dept_id INT NOT NULL,
+    origin_id INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL,
+    FOREIGN KEY (dept_id) REFERENCES dept(id),
+    FOREIGN KEY (origin_id) REFERENCES origin(id)
+);
+
+
+INSERT INTO products (name, dept_id, origin_id, price, stock) VALUES
+('Milk', 4, 1, 2.99, 100),
+('Bread', 2, 2, 1.99, 50),
+('Canned Beans', 3, 3, 0.99, 200),
+('Orange Juice', 1, 4, 3.49, 75);
