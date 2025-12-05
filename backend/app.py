@@ -104,7 +104,7 @@ def update_product(product_id, name, department, origin, price, stock):
 
 def delete_product(product_id):
     conn = get_conn()
-    with conn.cursor() as cur
+    with conn.cursor() as cur:
         cur.execute("""
         DELETE FROM products WHERE id=%s
         """, (product_id)
@@ -122,9 +122,16 @@ def fetch_departments():
 
 def fetch_origins():
     conn = get_conn()
-        with conn.cursor() as cur:
-            cur.execute("SELECT id, code FROM origin ORDER BY code")
-            return cur.fetchall()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, code FROM origin ORDER BY code")
+        return cur.fetchall()
+
+
+def dynamic_function(command):
+    com = f" {command}"
+    with engine.connect() as conn:
+        result=conn.execute(text(com)).mappings().all()
+    return [dict(row) for row in result]
 
 
 # -------- Flask app --------
@@ -186,6 +193,15 @@ def api_origins():
     return jsonify({
         "message": "GET /api/origins should return a list like: [{id, code}, ...] ordered by code."
     })
+
+@app.route('/v1/data/all')
+def test(): 
+    command = "SELECT * FROM products"
+    data = dynamic_function(command)
+    try:
+        return Response(json.dumps(data, default=str), mimetype='application/json')
+    except Exception as e:
+        return Response(json.dumps({"status": "error", "message": str(e)}), mimetype='application/json', status=500)
 
 
 if __name__ == "__main__":
