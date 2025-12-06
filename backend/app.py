@@ -127,6 +127,7 @@ def fetch_origins():
         cur.execute("SELECT id, name AS code FROM origin ORDER BY name")
         return cur.fetchall()
 
+
 # -------- Flask app --------
 app = Flask(_name_, static_folder="static", static_url_path="")
 CORS(app)  # allow front-end JS to call API
@@ -192,3 +193,4 @@ def api_origins():
 if _name_ == "_main_":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
