@@ -76,7 +76,6 @@ def fetch_product(product_id):
         cur.execute(query, (product_id,))
         return cur.fetchone()
 
-
 def insert_product(name, department, origin, price, stock):
     dept_id = get_or_create_dept_id(department)
     origin_id = get_or_create_origin_id(origin)
@@ -109,7 +108,7 @@ def delete_product(product_id):
     with conn.cursor() as cur:
         cur.execute("""
         DELETE FROM products WHERE id=%s
-        """, (product_id)
+        """, (product_id,)
         )
         return cur.rowcount
 
@@ -125,9 +124,8 @@ def fetch_departments():
 def fetch_origins():
     conn = get_conn()
     with conn.cursor() as cur:
-        cur.execute("SELECT id, code FROM origin ORDER BY code")
+        cur.execute("SELECT id, name AS code FROM origin ORDER BY name")
         return cur.fetchall()
-
 
 def dynamic_function(command):
     com = f" {command}"
