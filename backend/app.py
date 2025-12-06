@@ -1,6 +1,8 @@
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask import json
+from flask import Response
 import pymysql
 
 # -------- DB helpers (no classes, just functions) -------- 
@@ -30,11 +32,11 @@ def get_or_create_origin_id(origin_code = None):
             origin_code = "MX"
     conn = get_conn()
     with conn.cursor() as cur:
-        cur.execute("SELECT id FROM origin WHERE code=%s LIMIT 1", (origin_code,))
+        cur.execute("SELECT id FROM origin WHERE name=%s LIMIT 1", (origin_code,))
         row = cur.fetchone()
         if row:
             return row["id"]
-        cur.execute("INSERT INTO origin (code) VALUES (%s)", (origin_code,))
+        cur.execute("INSERT INTO origin (name) VALUES (%s)", (origin_code,))
         return cur.lastrowid
 
 
@@ -44,16 +46,16 @@ def fetch_all_products():
         query = """ 
         SELECT p.id, p.name,
             d.name AS department,
-            o.code AS origin,
+            o.name AS origin,
             p.price,
             p.stock 
-        FROM products
+        FROM products p
         JOIN dept d ON p.dept_id = d.id
         JOIN origin o ON p.origin_id = o.id
         ORDER BY p.id;
         """
-    cur.execute(query)
-    return cur.fetchall()
+        cur.execute(query)
+        return cur.fetchall()
 
 
 def fetch_product(product_id):
@@ -62,7 +64,7 @@ def fetch_product(product_id):
         query = """ 
         SELECT p.id, p.name,
             d.name AS department,
-            o.code AS origin,
+            o.name AS origin,
             p.price,
             p.stock 
         FROM products p
@@ -71,7 +73,7 @@ def fetch_product(product_id):
         WHERE p.id = %s
         LIMIT 1;
         """
-        cur.execute(query, (product_id))
+        cur.execute(query, (product_id,))
         return cur.fetchone()
 
 
