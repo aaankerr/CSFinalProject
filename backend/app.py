@@ -1,6 +1,8 @@
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask import json
+from flask import Response
 import pymysql
 
 # -------- DB helpers (no classes, just functions) -------- 
@@ -30,11 +32,11 @@ def get_or_create_origin_id(origin_code = None):
             origin_code = "MX"
     conn = get_conn()
     with conn.cursor() as cur:
-        cur.execute("SELECT id FROM origin WHERE code=%s LIMIT 1", (origin_code,))
+        cur.execute("SELECT id FROM origin WHERE name=%s LIMIT 1", (origin_code,))
         row = cur.fetchone()
         if row:
             return row["id"]
-        cur.execute("INSERT INTO origin (code) VALUES (%s)", (origin_code,))
+        cur.execute("INSERT INTO origin (name) VALUES (%s)", (origin_code,))
         return cur.lastrowid
 
 
@@ -44,16 +46,16 @@ def fetch_all_products():
         query = """ 
         SELECT p.id, p.name,
             d.name AS department,
-            o.code AS origin,
+            o.name AS origin,
             p.price,
             p.stock 
-        FROM products
+        FROM products p
         JOIN dept d ON p.dept_id = d.id
         JOIN origin o ON p.origin_id = o.id
         ORDER BY p.id;
         """
-    cur.execute(query)
-    return cur.fetchall()
+        cur.execute(query)
+        return cur.fetchall()
 
 
 def fetch_product(product_id):
@@ -62,7 +64,7 @@ def fetch_product(product_id):
         query = """ 
         SELECT p.id, p.name,
             d.name AS department,
-            o.code AS origin,
+            o.name AS origin,
             p.price,
             p.stock 
         FROM products p
@@ -71,7 +73,7 @@ def fetch_product(product_id):
         WHERE p.id = %s
         LIMIT 1;
         """
-        cur.execute(query, (product_id))
+        cur.execute(query, (product_id,))
         return cur.fetchone()
 
 
@@ -107,7 +109,7 @@ def delete_product(product_id):
     with conn.cursor() as cur:
         cur.execute("""
         DELETE FROM products WHERE id=%s
-        """, (product_id)
+        """, (product_id,)
         )
         return cur.rowcount
 
@@ -123,15 +125,8 @@ def fetch_departments():
 def fetch_origins():
     conn = get_conn()
     with conn.cursor() as cur:
-        cur.execute("SELECT id, code FROM origin ORDER BY code")
+        cur.execute("SELECT id, name AS code FROM origin ORDER BY name")
         return cur.fetchall()
-
-
-def dynamic_function(command):
-    com = f" {command}"
-    with engine.connect() as conn:
-        result=conn.execute(text(com)).mappings().all()
-    return [dict(row) for row in result]
 
 
 # -------- Flask app --------
@@ -147,62 +142,53 @@ def root():
 # -------- REST API (only instructional messages here) --------
 @app.get("/api/items")
 def api_list_items():
-    return jsonify({
-        "message": "GET /api/items should return a list of products joined with dept.name and origin.code."
-    })
+    products = fetch_all_products()
+    return jsonify(products)
 
 @app.get("/api/items/<int:product_id>")
 def api_get_item(product_id):
-    return jsonify({
-        "message": "GET /api/items/<id> should return a single product (with department and origin) or 404 if not found.",
-        "id_received": product_id
-    })
+    product = fetch_product(product_id)
+    return jsonify(product)
 
 @app.post("/api/items")
 def api_create_item():
     data = request.get_json(force=True)
-    return jsonify({
-        "message": "POST /api/items should insert a product (resolving dept_id and origin_id) and return the new id.",
-        "payload_received": data
-    }), 201
+    new_id = insert_product(
+        data["name"],
+        data["department"],
+        data.get("origin"),
+        float(data["price"]),
+        int(data["stock"])
+    )
+    return jsonify(fetch_product(new_id))
 
-@app.put("/api/items/<int:product_id>")
+@app.route("/api/items/<int:product_id>", methods=["PUT"])
 def api_update_item(product_id):
     data = request.get_json(force=True)
-    return jsonify({
-        "message": "PUT /api/items/<id> should update the product (name, department->dept_id, origin->origin_id, price, stock).",
-        "id_received": product_id,
-        "payload_received": data
-    })
+    update_product(
+        product_id,
+        data["name"],
+        data["department"],
+        data.get("origin"),
+        float(data["price"]),
+        int(data["stock"])
+    )
+    return jsonify(fetch_product(product_id))
 
 @app.delete("/api/items/<int:product_id>")
 def api_delete_item(product_id):
-    return jsonify({
-        "message": "DELETE /api/items/<id> should delete the product and return a confirmation.",
-        "id_received": product_id
-    })
+    del_product = delete_product(product_id)
+    return jsonify(del_product)
 
 @app.get("/api/departments")
 def api_departments():
-    return jsonify({
-        "message": "GET /api/departments should return a list like: [{id, name}, ...] ordered by name."
-    })
+    departments = fetch_departments()
+    return jsonify(departments)
 
 @app.get("/api/origins")
 def api_origins():
-    return jsonify({
-        "message": "GET /api/origins should return a list like: [{id, code}, ...] ordered by code."
-    })
-
-@app.route('/v1/data/all')
-def test(): 
-    command = "SELECT * FROM products"
-    data = dynamic_function(command)
-    try:
-        return Response(json.dumps(data, default=str), mimetype='application/json')
-    except Exception as e:
-        return Response(json.dumps({"status": "error", "message": str(e)}), mimetype='application/json', status=500)
-
+    origin = fetch_origins()
+    return jsonify(origin)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
