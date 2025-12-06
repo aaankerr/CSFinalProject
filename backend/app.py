@@ -76,6 +76,7 @@ def fetch_product(product_id):
         cur.execute(query, (product_id,))
         return cur.fetchone()
 
+
 def insert_product(name, department, origin, price, stock):
     dept_id = get_or_create_dept_id(department)
     origin_id = get_or_create_origin_id(origin)
@@ -129,7 +130,7 @@ def fetch_origins():
 
 
 # -------- Flask app --------
-app = Flask(_name_, static_folder="static", static_url_path="")
+app = Flask(__name__, static_folder="static", static_url_path="")
 CORS(app)  # allow front-end JS to call API
 
 # Serve the static index
@@ -189,8 +190,6 @@ def api_origins():
     origin = fetch_origins()
     return jsonify(origin)
 
-
-if _name_ == "_main_":
+if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
-
